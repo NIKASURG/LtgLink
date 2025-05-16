@@ -1,19 +1,220 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     style="@style/Widget.TraukiniuWiget.AppWidget.Container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:theme="@style/Theme.TraukiniuWiget.AppWidgetContainer">
 
+    <!-- LTG Link Logo -->
+
+
+
+    <ImageView
+        android:id="@+id/imageView2"
+        android:layout_width="123dp"
+        android:layout_height="35dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginStart="5dp"
+        android:layout_marginTop="1dp"
+        android:src="@drawable/letlinkfix" />
+
+    <!-- Refresh Button -->
+    <Button
+        android:id="@+id/button"
+        android:layout_width="50dp"
+        android:layout_height="30dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="0dp"
+        android:layout_marginEnd="0dp"
+        android:text="Perkrauti" />
+
+    <!-- Swap Direction Button -->
+
+    <!-- Route Text -->
+
     <TextView
-        android:id="@+id/appwidget_text"
-        style="@style/Widget.TraukiniuWiget.AppWidget.InnerView"
-        android:layout_width="wrap_content"
+        android:id="@+id/Marsrutas"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"
-        android:layout_margin="8dp"
-        android:contentDescription="@string/appwidget_text"
-        android:text="@string/appwidget_text"
-        android:textSize="24sp"
-        android:textStyle="bold|italic" />
+        android:layout_below="@id/imageView2"
+        android:layout_marginTop="8dp"
+        android:gravity="center"
+        android:text="Kaunas -> Kaišiadorys"
+        android:textColor="@color/black"
+        android:textSize="25sp" />
+
+    <!-- Train Times List -->
+    <LinearLayout
+        android:id="@+id/timesLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/Marsrutas"
+        android:layout_marginTop="8dp"
+        android:orientation="vertical"
+        android:padding="8dp">
+
+        <!-- Train 1 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:padding="4dp">
+
+            <TextView
+                android:id="@+id/train_number_1"
+                android:layout_width="40dp"
+                android:layout_height="wrap_content"
+                android:text=""
+                android:textStyle="bold"
+                android:textColor="@color/black"
+                android:textSize="20sp" />
+
+            <TextView
+                android:id="@+id/pirmas"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="06:15 -> 07:02"
+                android:textSize="20sp"
+                android:textColor="@color/black"
+                android:layout_marginStart="16dp" />
+
+        </LinearLayout>
+
+        <!-- Train 2 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:padding="4dp">
+
+            <TextView
+                android:id="@+id/train_number_2"
+                android:layout_width="40dp"
+                android:layout_height="wrap_content"
+                android:text=""
+                android:textStyle="bold"
+                android:textColor="@color/black"
+                android:textSize="20sp" />
+
+            <TextView
+                android:id="@+id/antras"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="07:30 -> 08:15"
+                android:textSize="20sp"
+                android:textColor="@color/black"
+                android:layout_marginStart="16dp" />
+
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:padding="4dp">
+
+            <TextView
+                android:id="@+id/train_number_3"
+                android:layout_width="40dp"
+                android:layout_height="wrap_content"
+                android:text=""
+                android:textStyle="bold"
+                android:textColor="@color/black"
+                android:textSize="20sp" />
+
+            <TextView
+                android:id="@+id/trecias"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="07:30 -> 08:15"
+                android:textSize="20sp"
+                android:textColor="@color/black"
+                android:layout_marginStart="16dp" />
+
+        </LinearLayout> <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:padding="4dp">
+
+        <TextView
+            android:id="@+id/train_number_4"
+            android:layout_width="40dp"
+            android:layout_height="wrap_content"
+            android:text=""
+            android:textStyle="bold"
+            android:textColor="@color/black"
+            android:textSize="20sp" />
+
+        <TextView
+            android:id="@+id/ketvirtas"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="07:30 -> 08:15"
+            android:textSize="20sp"
+            android:textColor="@color/black"
+            android:layout_marginStart="16dp" />
+
+    </LinearLayout> <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:padding="4dp">
+
+        <TextView
+            android:id="@+id/train_number_5"
+            android:layout_width="40dp"
+            android:layout_height="wrap_content"
+            android:text=""
+            android:textStyle="bold"
+            android:textColor="@color/black"
+            android:textSize="20sp" />
+
+        <TextView
+            android:id="@+id/penktas"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="07:30 -> 08:15"
+            android:textSize="20sp"
+            android:textColor="@color/black"
+            android:layout_marginStart="16dp" />
+
+    </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="end"
+            android:layout_marginEnd="17dp"
+            android:layout_marginBottom="85dp">
+
+            <Button
+                android:id="@+id/button2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="" />
+        </LinearLayout>
+
+
+
+    </LinearLayout>
+
+    <ImageView
+        android:id="@+id/imageView3"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="0dp"
+        android:scaleType="fitXY"
+        android:adjustViewBounds="true"
+        android:src="@drawable/image_removebg_preview" />
+
 </RelativeLayout>
