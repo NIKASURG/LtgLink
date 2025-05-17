@@ -15,7 +15,20 @@ import java.net.HttpURLConnection
 import java.net.URL
 import org.json.JSONObject
 
-// Veiksmų konstantos
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
+import android.net.*
+
+
+fun isInternetAvailable(context: Context): Boolean {
+    val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager
+        ?: return false
+
+    val network = connectivityManager.activeNetwork ?: return false
+    val capabilities = connectivityManager.getNetworkCapabilities(network) ?: return false
+    return capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+}
+
 const val ACTION_REVERSE = "ACTION_REVERSE"
 const val ACTION_REFRESH = "ACTION_REFRESH"
 
@@ -75,13 +88,21 @@ class TraukinioGrafikas : AppWidgetProvider() {
 
             appWidgetManager.updateAppWidget(appWidgetId, views)
 
-            // Duomenų užkrovimas
             GlobalScope.launch(Dispatchers.IO) {
-                val response = fetchTrainData()
-                withContext(Dispatchers.Main) {
-                    updateAppWidget(context, appWidgetManager, appWidgetId, response)
+                if (isInternetAvailable(context)) {
+                    val response = fetchTrainData()
+                    withContext(Dispatchers.Main) {
+                        updateAppWidget(context, appWidgetManager, appWidgetId, response)
+                    }
+                } else {
+                    withContext(Dispatchers.Main) {
+                        val viewsNoNet = RemoteViews(context.packageName, R.layout.traukinio_grafikas)
+                        viewsNoNet.setTextViewText(R.id.Marsrutas, "Be interneto")
+                        appWidgetManager.updateAppWidget(appWidgetId, viewsNoNet)
+                    }
                 }
             }
+
         }
     }
 
@@ -105,15 +126,25 @@ class TraukinioGrafikas : AppWidgetProvider() {
             else -> return
         }
 
-        // Atnaujiname visus widgetus
         GlobalScope.launch(Dispatchers.IO) {
-            val response = fetchTrainData()
-            withContext(Dispatchers.Main) {
-                for (appWidgetId in appWidgetIds) {
-                    updateAppWidget(context, appWidgetManager, appWidgetId, response)
+            if (isInternetAvailable(context)) {
+                val response = fetchTrainData()
+                withContext(Dispatchers.Main) {
+                    for (appWidgetId in appWidgetIds) {
+                        updateAppWidget(context, appWidgetManager, appWidgetId, response)
+                    }
+                }
+            } else {
+                withContext(Dispatchers.Main) {
+                    for (appWidgetId in appWidgetIds) {
+                        val viewsNoNet = RemoteViews(context.packageName, R.layout.traukinio_grafikas)
+                        viewsNoNet.setTextViewText(R.id.Marsrutas, "Be interneto")
+                        appWidgetManager.updateAppWidget(appWidgetId, viewsNoNet)
+                    }
                 }
             }
         }
+
     }
 }
 
