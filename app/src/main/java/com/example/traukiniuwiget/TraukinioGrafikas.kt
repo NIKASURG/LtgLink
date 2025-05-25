@@ -148,8 +148,6 @@ class TraukinioGrafikas : AppWidgetProvider() {
     }
 }
 
-// ----- Duomenų gavimo funkcija -----
-
 suspend fun fetchTrainData(s: Int = choise1, p: Int = choise2): String {
     return withContext(Dispatchers.IO) {
         try {
@@ -212,6 +210,5 @@ internal fun updateAppWidget(
     views.setTextViewText(R.id.trecias, laikai[2])
     views.setTextViewText(R.id.ketvirtas, laikai[3])
     views.setTextViewText(R.id.penktas, laikai[4])
-
     appWidgetManager.updateAppWidget(appWidgetId, views)
 }
