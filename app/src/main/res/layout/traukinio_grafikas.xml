@@ -37,11 +37,11 @@
     <!-- Route Text -->
 
     <!-- Train Times List -->
+
     <LinearLayout
         android:id="@+id/timesLayout"
         android:layout_width="match_parent"
         android:layout_height="319dp"
-        android:layout_below="@id/Marsrutas"
 
         android:layout_marginTop="19dp"
         android:orientation="vertical"
@@ -49,16 +49,30 @@
 
         <!-- Train 1 -->
 
-        <TextView
-            android:id="@+id/Marsrutas"
-            android:layout_width="match_parent"
+
+        <LinearLayout
+            android:id="@+id/routeDisplayLayout"
+            android:layout_width="287dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:gravity="center"
-            android:text="Kaunas -> Kaišiadorys"
-            android:textColor="@color/black"
-            android:textSize="23sp"
-            android:textStyle="bold" />
+            android:baselineAligned="false"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="8dp">
+
+            <TextView
+                android:id="@+id/Marsrutas1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:ellipsize="end"
+                android:gravity="center"
+                android:maxLines="1"
+                android:text="Kaišiadorys"
+                android:textColor="?android:attr/textColorPrimary"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
+        </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -177,11 +191,16 @@
 
             <ImageButton
                 android:id="@+id/button"
-                android:layout_width="48dp"
-                android:layout_height="100dp"
-                android:background="@null"
+                android:layout_width="40dp"
+                android:layout_height="48dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                android:background="@android:color/transparent"
+                android:contentDescription="Keisti kryptį"
+                android:padding="4dp"
                 android:scaleType="fitCenter"
                 android:src="@drawable/apsukti" />
+
 
         </LinearLayout>
 
@@ -197,10 +216,5 @@
         android:adjustViewBounds="true"
         android:scaleType="fitXY"
         android:src="@drawable/image_removebg_preview" />
-
-    <LinearLayout
-        android:layout_width="270dp"
-        android:layout_height="421dp"
-        android:orientation="horizontal"></LinearLayout>
 
 </RelativeLayout>
