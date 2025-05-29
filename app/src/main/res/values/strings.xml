@@ -3,4 +3,9 @@
     <string name="appwidget_text">Kraunama/Klaida/Nėra</string>
     <string name="add_widget">Pridėti tvarkarašti</string>
     <string name="app_widget_description">Matyk artimiausių traukinių laikus savo pagrindineme ekrane</string>
+    <string name="error_no_internet">Klaida: Nėra interneto ryšio</string>
+    <string name="error_fetching_data">Klaida gaunant duomenis</string>
+    <string name="error_processing_data">Klaida apdorojant duomenis</string>
+
+
 </resources>

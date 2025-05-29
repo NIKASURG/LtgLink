@@ -10,10 +10,11 @@ import android.widget.RemoteViews
 import android.util.Log
 import kotlinx.coroutines.*
 import android.content.ComponentName
-import com.example.traukiniuwiget.R
 import java.net.HttpURLConnection
 import java.net.URL
 import org.json.JSONObject
+import org.json.JSONException // Būtinai importuokite JSONException
+import com.example.traukiniuwiget.R // Pakeiskite į savo R failo kelią, jei reikia
 
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
@@ -185,10 +186,13 @@ class TraukinioGrafikas : AppWidgetProvider() {
                     appWidgetManager.updateAppWidget(appWidgetId, views)
                 }
             }
+
             ACTION_REFRESH -> {
                 Log.d("Traukiniai", "Atnaujinami duomenys")
                 // Nereikia keisti choise1 ir choise2, tiesiog atnaujiname duomenis
+
             }
+
             else -> return // Jei veiksmas neatpažintas, išeiname
         }
 
@@ -246,18 +250,26 @@ suspend fun fetchTrainData(s: Int, p: Int): String {
         }
     }
 }
-
-// Funkcija, atnaujinanti widget'o tekstus pagal gautus duomenis
 internal fun updateAppWidget(
     context: Context,
     appWidgetManager: AppWidgetManager,
     appWidgetId: Int,
     responseText: String
 ) {
-    // Patikriname, ar gautas atsakymas yra JSON
-    if (!responseText.startsWith("{") && !responseText.startsWith("[")) {
+    // Pridedame detalesnį log'inimą, kad matytume gaunamą responseText
+    Log.d("WidgetDebug", "updateAppWidget gavo responseText: [${responseText}]")
+    Log.d("WidgetDebug", "responseText ilgis: ${responseText.length}")
+    Log.d("WidgetDebug", "responseText.startsWith('{'): ${responseText.startsWith("{")}")
+    Log.d("WidgetDebug", "responseText.startsWith('['): ${responseText.startsWith("[")}")
+
+    // Patikriname, ar gautas atsakymas yra JSON pagal pradžios simbolius
+    // Šis patikrinimas yra greitas būdas atmesti akivaizdžiai ne JSON eilutes.
+    if (!responseText.trimStart().startsWith("{") && !responseText.trimStart().startsWith("[")) {
+        Log.e("WidgetDebug", "Aptiktas ne JSON formatu pradedamas responseText (po trimStart): [${responseText}]")
         val viewsError = RemoteViews(context.packageName, R.layout.traukinio_grafikas)
-        viewsError.setTextViewText(R.id.Marsrutas1, "Klaida: ${responseText}")
+        // Rodome klaidą, kuri gali būti pati responseText, jei ji trumpa, arba bendrinę klaidą.
+        val errorMessage = if (responseText.length < 50) responseText else "Netikėtas atsakas"
+        viewsError.setTextViewText(R.id.Marsrutas1, "Klaida: $errorMessage")
         viewsError.setTextViewText(R.id.pirmas, "")
         viewsError.setTextViewText(R.id.antras, "")
         viewsError.setTextViewText(R.id.trecias, "")
@@ -267,34 +279,121 @@ internal fun updateAppWidget(
         return
     }
 
-    val jsonObject = JSONObject(responseText)
-    val journeysArray = jsonObject.getJSONArray("Journeys")
-    val laikai = Array(journeysArray.length() + 4) { "" } // Padidiname dydį, kad būtų vietos visiems laikams
+    val jsonObject: JSONObject // Deklaruojame jsonObject čia
 
-    var kryptis = ""
+    try {
+        // Bandome konvertuoti responseText į JSONObject
+        Log.d("WidgetDebug", "Bandoma konvertuoti į JSONObject: [${responseText}]")
+        jsonObject = JSONObject(responseText)
+    } catch (e: JSONException) {
+        // Jei įvyksta JSONException konvertuojant pradinę eilutę
+        Log.e("WidgetDebug", "JSONException konvertuojant pradinę eilutę: ${e.message}, responseText buvo: [${responseText}]")
 
-    // Iteruojame per keliones atgal, kad gautume naujausius laikus į pradžią
-    for (i in journeysArray.length() - 1 downTo 0) {
-        val journey = journeysArray.getJSONObject(i)
-        val originCity = journey.getJSONObject("Origin").getJSONObject("City").getString("Name")
-        val destinationCity = journey.getJSONObject("Destination").getJSONObject("City").getString("Name")
-
-        val departureTime = journey.getJSONObject("Origin").getString("ActualDepartureDateTime").split("T")[1].dropLast(3)
-        val arrivalTime = journey.getJSONObject("Destination").getString("PlannedArrivalDateTime").split("T")[1].dropLast(3)
-
-        kryptis = "$originCity ➞ $destinationCity"
-        // Įrašome laikus į masyvą nuo pradžios
-        if (i < laikai.size) { // Apsauga nuo masyvo ribų viršijimo
-            laikai[i] = "$departureTime - $arrivalTime"
-        }
+        val viewsError = RemoteViews(context.packageName, R.layout.traukinio_grafikas)
+        viewsError.setTextViewText(R.id.Marsrutas1, "Klaida: Blogas atsako formatas")
+        viewsError.setTextViewText(R.id.pirmas, "")
+        viewsError.setTextViewText(R.id.antras, "")
+        viewsError.setTextViewText(R.id.trecias, "")
+        viewsError.setTextViewText(R.id.ketvirtas, "")
+        viewsError.setTextViewText(R.id.penktas, "")
+        appWidgetManager.updateAppWidget(appWidgetId, viewsError)
+        return // Baigiame funkcijos vykdymą
     }
 
-    val views = RemoteViews(context.packageName, R.layout.traukinio_grafikas)
-    views.setTextViewText(R.id.Marsrutas1, kryptis)
-    views.setTextViewText(R.id.pirmas, laikai.getOrElse(0) { "" })
-    views.setTextViewText(R.id.antras, laikai.getOrElse(1) { "" })
-    views.setTextViewText(R.id.trecias, laikai.getOrElse(2) { "" })
-    views.setTextViewText(R.id.ketvirtas, laikai.getOrElse(3) { "" })
-    views.setTextViewText(R.id.penktas, laikai.getOrElse(4) { "" })
-    appWidgetManager.updateAppWidget(appWidgetId, views)
+    // Jei kodas pasiekia šią vietą, jsonObject buvo sėkmingai sukurtas.
+    // Toliau bandome išgauti duomenis iš JSON struktūros.
+    try {
+        val journeysArray = jsonObject.getJSONArray("Journeys")
+        // Tikriname, ar journeysArray nėra tuščias
+        if (journeysArray.length() == 0) {
+            Log.d("WidgetDebug", "Journeys masyvas yra tuščias.")
+            val viewsNoData = RemoteViews(context.packageName, R.layout.traukinio_grafikas)
+            // Bandome gauti stotelių pavadinimus iš pirminio JSON, jei įmanoma, klaidų pranešimui
+            // Tai daroma atsargiai, nes raktai gali neegzistuoti
+            var originName = "Nežinoma"
+            var destName = "Nežinoma"
+            try {
+                // Pabandome ištraukti stotelių pavadinimus iš pirmo elemento, jei toks yra,
+                // arba iš kitų galimų vietų, priklausomai nuo API atsako struktūros klaidų atveju.
+                // Ši dalis yra spekuliatyvi ir priklauso nuo to, ką API grąžina, kai nėra kelionių.
+                // Jei API grąžina tuščią "Journeys", bet turi kitur stotelių info, čia būtų vieta ją paimti.
+                // Pavyzdžiui, jei API grąžintų kažką panašaus į:
+                // { "OriginStop": {"Name": "Vilnius"}, "DestinationStop": {"Name": "Kaunas"}, "Journeys": [] }
+                // if (jsonObject.has("OriginStop") && jsonObject.getJSONObject("OriginStop").has("Name")) {
+                //     originName = jsonObject.getJSONObject("OriginStop").getString("Name")
+                // }
+                // if (jsonObject.has("DestinationStop") && jsonObject.getJSONObject("DestinationStop").has("Name")) {
+                //     destName = jsonObject.getJSONObject("DestinationStop").getString("Name")
+                // }
+                // Jei tokios informacijos nėra, paliekame "Nežinoma"
+            } catch (nameEx: JSONException) {
+                Log.w("WidgetDebug", "Nepavyko gauti stotelių pavadinimų tuščiam Journeys masyvui: ${nameEx.message}")
+            }
+            viewsNoData.setTextViewText(R.id.Marsrutas1, "$originName ➞ $destName") // Rodome kryptį, jei pavyko gauti
+            viewsNoData.setTextViewText(R.id.pirmas, "Šiandien reisų nėra")
+            viewsNoData.setTextViewText(R.id.antras, "")
+            viewsNoData.setTextViewText(R.id.trecias, "")
+            viewsNoData.setTextViewText(R.id.ketvirtas, "")
+            viewsNoData.setTextViewText(R.id.penktas, "")
+            appWidgetManager.updateAppWidget(appWidgetId, viewsNoData)
+            return
+        }
+
+        val laikai = Array(journeysArray.length().coerceAtMost(5)) { "" } // Imame ne daugiau kaip 5 laikus
+        var kryptis = ""
+
+        // Iteruojame per keliones, bet ne daugiau kaip 5 kartus
+        for (i in 0 until journeysArray.length().coerceAtMost(5)) {
+            val journey = journeysArray.getJSONObject(i) // Imame nuo pradžios (0, 1, 2...)
+
+            // Saugus būdas gauti reikšmes, naudojant .optString() ar .optJSONObject()
+            // .optString("Raktas", "NumatytojiReikšmėJeiNėraArbaNeString")
+            val originStop = journey.optJSONObject("Origin")?.optJSONObject("Stop")
+            val destinationStop = journey.optJSONObject("Destination")?.optJSONObject("Stop")
+
+            val originCity = originStop?.optString("Name", "N/A") ?: "N/A"
+            val destinationCity = destinationStop?.optString("Name", "N/A") ?: "N/A"
+
+            // Nustatome kryptį tik vieną kartą (iš pirmos kelionės)
+            if (i == 0) {
+                kryptis = "$originCity ➞ $destinationCity"
+            }
+
+            val actualDepartureDateTime = journey.optJSONObject("Origin")?.optString("ActualDepartureDateTime", "") ?: ""
+            val plannedArrivalDateTime = journey.optJSONObject("Destination")?.optString("PlannedArrivalDateTime", "") ?: ""
+
+            var departureTime = "N/A"
+            if (actualDepartureDateTime.contains("T") && actualDepartureDateTime.length > actualDepartureDateTime.indexOf("T") + 5) {
+                departureTime = actualDepartureDateTime.split("T")[1].substring(0, 5) // HH:mm
+            }
+
+            var arrivalTime = "N/A"
+            if (plannedArrivalDateTime.contains("T") && plannedArrivalDateTime.length > plannedArrivalDateTime.indexOf("T") + 5) {
+                arrivalTime = plannedArrivalDateTime.split("T")[1].substring(0, 5) // HH:mm
+            }
+
+            laikai[i] = "$departureTime - $arrivalTime"
+        }
+
+        val views = RemoteViews(context.packageName, R.layout.traukinio_grafikas)
+        views.setTextViewText(R.id.Marsrutas1, kryptis)
+        views.setTextViewText(R.id.pirmas, laikai.getOrElse(0) { "" })
+        views.setTextViewText(R.id.antras, laikai.getOrElse(1) { "" })
+        views.setTextViewText(R.id.trecias, laikai.getOrElse(2) { "" })
+        views.setTextViewText(R.id.ketvirtas, laikai.getOrElse(3) { "" })
+        views.setTextViewText(R.id.penktas, laikai.getOrElse(4) { "" })
+        appWidgetManager.updateAppWidget(appWidgetId, views)
+
+    } catch (e: JSONException) {
+        // Jei įvyksta JSONException apdorojant JSON struktūrą (pvz., trūksta rakto)
+        Log.e("WidgetDebug", "JSONException apdorojant JSON struktūrą: ${e.message}")
+        val viewsError = RemoteViews(context.packageName, R.layout.traukinio_grafikas)
+        viewsError.setTextViewText(R.id.Marsrutas1, "Klaida: Duomenų struktūra")
+        viewsError.setTextViewText(R.id.pirmas, "")
+        viewsError.setTextViewText(R.id.antras, "")
+        viewsError.setTextViewText(R.id.trecias, "")
+        viewsError.setTextViewText(R.id.ketvirtas, "")
+        viewsError.setTextViewText(R.id.penktas, "")
+        appWidgetManager.updateAppWidget(appWidgetId, viewsError)
+    }
 }

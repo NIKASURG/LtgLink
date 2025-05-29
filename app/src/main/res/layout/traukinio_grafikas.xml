@@ -49,7 +49,6 @@
 
         <!-- Train 1 -->
 
-
         <LinearLayout
             android:id="@+id/routeDisplayLayout"
             android:layout_width="287dp"
@@ -70,7 +69,8 @@
                 android:text="Kaišiadorys"
                 android:textColor="?android:attr/textColorPrimary"
                 android:textSize="20sp"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                />
 
         </LinearLayout>
 
